@@ -5,8 +5,20 @@
     <title>Crossword Page</title>
 </head>
 <body>
-    <form>
-
-    </form>
-</body>
+    <h1>Crossword site</h1>
+    <h2>Add your clue</h2>
+        <form action="http://localhost:8080/clues" method="post" class="form-clue" >
+            <div class="form-hint">
+                <label for="hint">Hint: </label>
+                <input type="text" name="hint" id="hint" required>
+            </div>
+            <div class="form-answer">
+                <label for="answer">Answer: </label>
+                <input type="text" name="answer" id="answer" required>
+            </div>
+            <div class="form-submit">
+                <input type="submit" value="Save">
+            </div>
+        </form>
+    </body>
 </html>

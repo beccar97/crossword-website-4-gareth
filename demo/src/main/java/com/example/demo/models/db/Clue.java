@@ -20,6 +20,11 @@ public class Clue {
     @Column
     private String hint;
 
+    @NotNull
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Difficulty difficulty;
+
     public Integer getId() {
         return id;
     }
@@ -38,5 +43,13 @@ public class Clue {
 
     public void setHint(String hint) {
         this.hint = hint;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 }

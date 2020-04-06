@@ -2,6 +2,7 @@ package com.example.demo.controllers;
 
 import com.example.demo.models.api.CreateClueRequest;
 import com.example.demo.models.db.Clue;
+import com.example.demo.models.db.Difficulty;
 import com.example.demo.repositories.ClueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,10 +24,11 @@ public class ClueController {
     }
 
     @PostMapping
-    public @ResponseBody Clue addClue(@RequestBody CreateClueRequest clue) {
+    public @ResponseBody Clue addClue(@ModelAttribute CreateClueRequest clue) {
         var clue2 = new Clue();
         clue2.setAnswer(clue.getAnswer());
         clue2.setHint(clue.getHint());
+        clue2.setDifficulty(Difficulty.MEDIUM);
         return clueRepository.save(clue2);
     }
 }
