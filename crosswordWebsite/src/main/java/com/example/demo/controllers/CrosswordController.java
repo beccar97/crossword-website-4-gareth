@@ -1,9 +1,9 @@
 package com.example.demo.controllers;
 
+import com.example.demo.exception.NotFoundException;
 import com.example.demo.models.api.AddClueRequest;
 import com.example.demo.models.db.Crossword;
 import com.example.demo.services.CrosswordService;
-import org.hibernate.validator.constraints.pl.REGON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -41,12 +41,9 @@ public class CrosswordController {
     ) {
         var crossword = crosswordService.findCrossword(id);
 
-        if (crossword.isEmpty()) throw new Error("No such crossword");
+        if (crossword.isEmpty()) throw new NotFoundException("No such crossword");
 
-        var updatedCrossword = crosswordService.addClue(crossword.get(), clueRequest);
-
-        if (updatedCrossword == null) throw new Error("Clue does not fit in this position");
-        else return updatedCrossword;
+        return crosswordService.addClue(crossword.get(), clueRequest);
     }
 
 }

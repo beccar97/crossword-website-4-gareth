@@ -1,5 +1,7 @@
 package com.example.demo.services;
 
+import com.example.demo.exception.InvalidClueException;
+import com.example.demo.exception.NotFoundException;
 import com.example.demo.models.api.AddClueRequest;
 import com.example.demo.models.db.ClueDirection;
 import com.example.demo.models.db.CluePosition;
@@ -61,9 +63,9 @@ public class CrosswordService {
     public Crossword addClue(Crossword crossword, AddClueRequest clueRequest){
         var clue = createCluePosition(clueRequest);
         var clues = crossword.getCluePositions();
-        if (!withinBounds(crossword, clue)) return null;
+        if (!withinBounds(crossword, clue)) throw new InvalidClueException("This clue does not fit inside the grid");
         for (CluePosition existingClue : clues){
-            if (!compatibleClues(clue, existingClue)) return null;
+            if (!compatibleClues(clue, existingClue)) throw new InvalidClueException("This clue is not compatible with other clues in this crossword");
         }
 
         clues.add(clue);
@@ -76,7 +78,7 @@ public class CrosswordService {
         var cluePosition = new CluePosition();
         var clue = clueRepository.findById(clueRequest.getClueId());
 
-        if (clue.isEmpty()) throw new Error("Clue not found");
+        if (clue.isEmpty()) throw new NotFoundException("Could not find clue");
 
         cluePosition.setClue(clue.get());
         cluePosition.setxPos(clueRequest.getxPos());
