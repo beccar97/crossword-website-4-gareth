@@ -120,8 +120,15 @@ public class Crossword {
         return (horizontalStart <= verticalX && verticalX <= horizontalEnd);
     }
 
-    public boolean validate(){
-        //TODO
-        return false;
+    public boolean validate() {
+        var numClues = cluePositions.size();
+        for (int i = 0; i < numClues; i++) {
+            for (int j = i + 1; j < numClues; j++) {
+                var clue1 = cluePositions.get(i);
+                var clue2 = cluePositions.get(j);
+                if (compatibleClues(clue1, clue2)) return false;
+            }
+        }
+        return true;
     }
 }
