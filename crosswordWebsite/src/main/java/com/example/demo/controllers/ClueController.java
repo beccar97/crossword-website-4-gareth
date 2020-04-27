@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @RequestMapping(path="/api/clues")
 public class ClueController {
-    @Autowired
     private final ClueRepository clueRepository;
 
+    @Autowired
     ClueController(ClueRepository clueRepository){
         this.clueRepository = clueRepository;
     }
