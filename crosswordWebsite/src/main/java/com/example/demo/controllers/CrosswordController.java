@@ -1,11 +1,14 @@
 package com.example.demo.controllers;
 
-import com.example.demo.models.Crossword;
-import com.example.demo.models.db.CluePosition;
+import com.example.demo.models.api.AddClueRequest;
+import com.example.demo.models.db.Crossword;
 import com.example.demo.services.CrosswordService;
+import org.hibernate.validator.constraints.pl.REGON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @RequestMapping(path="api/crosswords")
@@ -17,7 +20,12 @@ public class CrosswordController {
         this.crosswordService = crosswordService;
     }
 
-    @PostMapping("/createCrossword/{height}/{width}")
+    @GetMapping("/all")
+    public @ResponseBody List<Crossword> getAll(){
+        return crosswordService.findAll();
+    }
+
+    @GetMapping("/createCrossword/{height}/{width}")
     public @ResponseBody Crossword createCrossword(
             @PathVariable Integer height,
             @PathVariable Integer width
@@ -28,14 +36,14 @@ public class CrosswordController {
     @PostMapping("/{id}/addClue")
     public @ResponseBody
     Crossword addClue(
-            @ModelAttribute CluePosition cluePosition,
-            @PathVariable Integer id
+            @PathVariable Integer id,
+            @RequestBody AddClueRequest clueRequest
     ) {
         var crossword = crosswordService.findCrossword(id);
 
         if (crossword.isEmpty()) throw new Error("No such crossword");
 
-        var updatedCrossword = crosswordService.addClue(crossword.get(), cluePosition);
+        var updatedCrossword = crosswordService.addClue(crossword.get(), clueRequest);
 
         if (updatedCrossword == null) throw new Error("Clue does not fit in this position");
         else return updatedCrossword;

@@ -1,31 +1,48 @@
 package com.example.demo.services;
 
+import com.example.demo.models.api.AddClueRequest;
 import com.example.demo.models.db.ClueDirection;
 import com.example.demo.models.db.CluePosition;
-import com.example.demo.models.Crossword;
+import com.example.demo.models.db.Crossword;
+import com.example.demo.repositories.CluePositionRepository;
+import com.example.demo.repositories.ClueRepository;
 import com.example.demo.repositories.CrosswordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CrosswordService {
-
+    private final ClueRepository clueRepository;
+    private final CluePositionRepository cluePositionRepository;
     private final CrosswordRepository crosswordRepository;
 
     @Autowired
-    public CrosswordService(CrosswordRepository crosswordRepository) {
+    public CrosswordService(
+            CrosswordRepository crosswordRepository,
+            ClueRepository clueRepository,
+            CluePositionRepository cluePositionRepository
+    ) {
         this.crosswordRepository = crosswordRepository;
+        this.clueRepository = clueRepository;
+        this.cluePositionRepository = cluePositionRepository;
     }
 
     public Crossword createCrossword(Integer height, Integer width) {
-        Crossword crossword = new Crossword(height, width);
+        Crossword crossword = new Crossword();
+        crossword.setHeight(height);
+        crossword.setWidth(width);
         return crosswordRepository.save(crossword);
     }
 
     public Optional<Crossword> findCrossword(Integer id) {
         return crosswordRepository.findById(id);
+    }
+
+    public List<Crossword> findAll() {
+        return (List<Crossword>) crosswordRepository.findAll();
     }
 
     public boolean validate(Crossword crossword) {
@@ -41,7 +58,8 @@ public class CrosswordService {
         return true;
     }
 
-    public Crossword addClue(Crossword crossword, CluePosition clue){
+    public Crossword addClue(Crossword crossword, AddClueRequest clueRequest){
+        var clue = createCluePosition(clueRequest);
         var clues = crossword.getCluePositions();
         if (!withinBounds(crossword, clue)) return null;
         for (CluePosition existingClue : clues){
@@ -50,7 +68,22 @@ public class CrosswordService {
 
         clues.add(clue);
         crossword.setCluePositions(clues);
+        crosswordRepository.save(crossword);
         return crossword;
+    }
+
+    private CluePosition createCluePosition(AddClueRequest clueRequest) {
+        var cluePosition = new CluePosition();
+        var clue = clueRepository.findById(clueRequest.getClueId());
+
+        if (clue.isEmpty()) throw new Error("Clue not found");
+
+        cluePosition.setClue(clue.get());
+        cluePosition.setxPos(clueRequest.getxPos());
+        cluePosition.setyPos(clueRequest.getyPos());
+        cluePosition.setClueDirection(clueRequest.getClueDirection());
+
+        return cluePositionRepository.save(cluePosition);
     }
 
     private boolean withinBounds(Crossword crossword, CluePosition clue){
@@ -78,8 +111,7 @@ public class CrosswordService {
         var clue2End = clue2.getxPos() + clue2.getClue().getAnswer().length() - 1;
 
         if (clue1End < clue2Start - 1) return true;
-        else if (clue1Start > clue2End + 1) return true;
-        else return false;
+        else return clue1Start > clue2End + 1;
     }
 
     private boolean validateVerticalPair(CluePosition clue1, CluePosition clue2) {
@@ -91,8 +123,7 @@ public class CrosswordService {
         var clue2End = clue2.getyPos() + clue2.getClue().getAnswer().length() - 1;
 
         if (clue1End < clue2Start - 1) return true;
-        else if (clue1Start > clue2End + 1) return true;
-        else return false;
+        else return clue1Start > clue2End + 1;
     }
 
     private boolean validateIntersection(CluePosition clue1, CluePosition clue2){

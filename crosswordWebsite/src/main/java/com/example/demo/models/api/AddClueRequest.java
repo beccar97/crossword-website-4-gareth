@@ -1,39 +1,27 @@
-package com.example.demo.models.db;
+package com.example.demo.models.api;
 
+import com.example.demo.models.db.ClueDirection;
 import com.sun.istack.NotNull;
 
-import javax.persistence.*;
-
-@Entity
-@Table
-public class CluePosition {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column
-    private Integer id;
-
-    @ManyToOne
-    private Clue clue;
+public class AddClueRequest {
+    @NotNull
+    private Integer clueId;
 
     @NotNull
-    @Column
     private int xPos;
 
     @NotNull
-    @Column
     private int yPos;
 
     @NotNull
-    @Column
-    @Enumerated(EnumType.STRING)
     private ClueDirection clueDirection;
 
-    public Clue getClue() {
-        return clue;
+    public Integer getClueId() {
+        return clueId;
     }
 
-    public void setClue(Clue clue) {
-        this.clue = clue;
+    public void setClueId(Integer clueId) {
+        this.clueId = clueId;
     }
 
     public int getxPos() {
@@ -60,4 +48,3 @@ public class CluePosition {
         this.clueDirection = clueDirection;
     }
 }
-
