@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Crossword Page</title>
+</head>
+<body>
+    <div id="crossword-creation-section">
+        <div id="dimensions-selection">
+            <h2>Dimensions:</h2>
+            <label for="height">Height: </label>
+            <input type="number" id="height" name="dimensions" required minlength="1" maxlength="2" size="2">
+            <label for="width">Width: </label>
+            <input type="number" id="width" name="dimensions" required minlength="1" maxlength="2" size="2">
+        </div>
+        <div id="crossword-editor">
+            <div id="crossword-box-selection">
+                <option th:each="column : ${grid}">
+<!--                    <option th:each="letter: ${column}">-->
+<!--                        <p th:text="letter"></p>-->
+<!--                    </option>-->
+                </option>
+            </div>
+            <div id="clue-panel-selection">
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
