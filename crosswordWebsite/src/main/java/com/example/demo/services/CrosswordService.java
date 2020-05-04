@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -60,12 +61,13 @@ public class CrosswordService {
         return true;
     }
 
-    public Crossword addClue(Crossword crossword, AddClueRequest clueRequest){
+    public Crossword addClue(Crossword crossword, AddClueRequest clueRequest) {
         var clue = createCluePosition(clueRequest);
         var clues = crossword.getCluePositions();
         if (!withinBounds(crossword, clue)) throw new InvalidClueException("This clue does not fit inside the grid");
-        for (CluePosition existingClue : clues){
-            if (!compatibleClues(clue, existingClue)) throw new InvalidClueException("This clue is not compatible with other clues in this crossword");
+        for (CluePosition existingClue : clues) {
+            if (!compatibleClues(clue, existingClue))
+                throw new InvalidClueException("This clue is not compatible with other clues in this crossword");
         }
 
         clues.add(clue);
@@ -88,16 +90,16 @@ public class CrosswordService {
         return cluePositionRepository.save(cluePosition);
     }
 
-    private boolean withinBounds(Crossword crossword, CluePosition clue){
-        if(clue.getClueDirection() == ClueDirection.HORIZONTAL){
+    private boolean withinBounds(Crossword crossword, CluePosition clue) {
+        if (clue.getClueDirection() == ClueDirection.HORIZONTAL) {
             return (clue.getxPos() + clue.getClue().getAnswer().length() <= crossword.getWidth());
         } else {
             return (clue.getyPos() + clue.getClue().getAnswer().length() <= crossword.getHeight());
         }
     }
 
-    public boolean compatibleClues(CluePosition clue1, CluePosition clue2){
-        if(clue1.getClueDirection() != clue2.getClueDirection()){
+    public boolean compatibleClues(CluePosition clue1, CluePosition clue2) {
+        if (clue1.getClueDirection() != clue2.getClueDirection()) {
             return validateIntersection(clue1, clue2);
         } else if (clue1.getClueDirection() == ClueDirection.HORIZONTAL) {
             return validateHorizontalPair(clue1, clue2);
@@ -128,7 +130,7 @@ public class CrosswordService {
         else return clue1Start > clue2End + 1;
     }
 
-    private boolean validateIntersection(CluePosition clue1, CluePosition clue2){
+    private boolean validateIntersection(CluePosition clue1, CluePosition clue2) {
         var horizontalClue = (clue1.getClueDirection() == ClueDirection.HORIZONTAL) ? clue1 : clue2;
         var verticalClue = (clue1.getClueDirection() == ClueDirection.VERTICAL) ? clue1 : clue2;
         var horizontalAnswerChars = horizontalClue.getClue().getAnswer().toCharArray();
@@ -138,12 +140,15 @@ public class CrosswordService {
         var y = horizontalClue.getyPos();
 
         if (x == horizontalClue.getxPos() - 1 && inVerticalRange(horizontalClue, verticalClue)) return false;
-        if (x == horizontalClue.getxPos() + horizontalAnswerChars.length && inVerticalRange(horizontalClue, verticalClue)) return false;
+        if (x == horizontalClue.getxPos() + horizontalAnswerChars.length && inVerticalRange(horizontalClue, verticalClue))
+            return false;
 
         if (y == verticalClue.getyPos() - 1 && inHorizontalRange(horizontalClue, verticalClue)) return false;
-        if (y == verticalClue.getyPos() + verticalAnswerChars.length && inHorizontalRange(horizontalClue, verticalClue)) return false;
+        if (y == verticalClue.getyPos() + verticalAnswerChars.length && inHorizontalRange(horizontalClue, verticalClue))
+            return false;
 
-        if (!inVerticalRange(horizontalClue, verticalClue) && !inHorizontalRange(horizontalClue, verticalClue)) return true;
+        if (!inVerticalRange(horizontalClue, verticalClue) && !inHorizontalRange(horizontalClue, verticalClue))
+            return true;
 
         var horizontalIntersectChar = horizontalAnswerChars[x - horizontalClue.getxPos()];
         var verticalIntersectChar = verticalAnswerChars[y - verticalClue.getyPos()];
@@ -167,4 +172,36 @@ public class CrosswordService {
 
         return (horizontalStart <= verticalX && verticalX <= horizontalEnd);
     }
+
+    public Optional<Character> findCellValue(Crossword crossword, int xPos, int yPos) {
+        return crossword.getCluePositions().stream()
+                .map(cluePosition -> characterAtPoint(cluePosition, xPos, yPos))
+                .filter(Objects::nonNull)
+                .findFirst();
+    }
+
+    private boolean intersectsPoint(CluePosition cluePosition, int xPos, int yPos) {
+        int answerLength = cluePosition.getClue().getAnswer().length();
+        if (cluePosition.getClueDirection() == ClueDirection.HORIZONTAL) {
+            return cluePosition.getyPos() == yPos
+                    && cluePosition.getxPos() <= xPos
+                    && cluePosition.getxPos() + answerLength >= xPos;
+        } else {
+            return cluePosition.getxPos() == xPos
+                    && cluePosition.getyPos() <= yPos
+                    && cluePosition.getyPos() + answerLength >= yPos;
+        }
+    }
+
+    private Character characterAtPoint(CluePosition cluePosition, int xPos, int yPos) {
+        if (!intersectsPoint(cluePosition, xPos, yPos)) return null;
+
+        String answer = cluePosition.getClue().getAnswer();
+        if (cluePosition.getClueDirection() == ClueDirection.HORIZONTAL) {
+            return answer.charAt(xPos - cluePosition.getxPos());
+        } else {
+            return answer.charAt(yPos - cluePosition.getyPos());
+        }
+    }
 }
+
