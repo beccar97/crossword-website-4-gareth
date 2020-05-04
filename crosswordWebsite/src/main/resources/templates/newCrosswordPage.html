@@ -14,11 +14,11 @@
             <input type="number" id="width" name="dimensions" required minlength="1" maxlength="2" size="2">
         </div>
         <div id="crossword-editor">
-            <div id="crossword-box-selection">
-                <option th:each="column : ${grid}">
-<!--                    <option th:each="letter: ${column}">-->
-<!--                        <p th:text="letter"></p>-->
-<!--                    </option>-->
+            <div id="container">
+                <option th:each="cell : ${cells}">
+                    <div class="populated-cell">
+                        <text>H</text>
+                    </div>
                 </option>
             </div>
             <div id="clue-panel-selection">

@@ -11,7 +11,7 @@ public class NewCrosswordPageController {
 
     @GetMapping(path="/newCrosswordPage")
     public String newCrosswordPage(@RequestBody CrosswordViewModel crossword, Model model) {
-        model.addAttribute("grid", crossword.getGrid());
+        model.addAttribute("cells", crossword.getCells());
         model.addAttribute("height", crossword.getHeight());
         model.addAttribute("width", crossword.getWidth());
         return "newCrosswordPage";
